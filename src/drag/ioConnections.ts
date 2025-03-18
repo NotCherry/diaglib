@@ -7,6 +7,10 @@ function handleMouseDown(event) {
   // Grab the selected node if connected, and reconnect it to a new place
   setSelectedElements();
 
+  if (event.button === 2) {
+    return;
+  }
+
   if (Graph.selectedIO !== undefined) {
     const selectedIO = Graph.IOMap.get(Graph.selectedIO);
     if (selectedIO) {

@@ -8,6 +8,7 @@ export interface IWidget {
   height?: number;
   type?: string;
   id?: string;
+  style?: string; 
   owner: string;
   // graf: Graph;
 }
@@ -17,6 +18,7 @@ export default abstract class Widget {
   pos: Point;
   width: number;
   height: number;
+  fontSize:number = 18;
   type: string;
   owner: string;
   element: HTMLTextAreaElement;
@@ -47,7 +49,8 @@ export function AdjustElementPos(
   element: HTMLElement,
   pos: Point,
   width: number,
-  height: number
+  height: number,
+  fontSize:number
 ): void {
   element.style.width = `${width * Graph.scale}px`;
   element.style.height = `${height * Graph.scale}px`;
@@ -58,4 +61,5 @@ export function AdjustElementPos(
   element.style.top = `${
     pos.y * Graph.scale + Graph.transforms.f + Graph.widgetYOffset
   }px`;
+  element.style.fontSize = `${fontSize * Graph.scale}px`
 }

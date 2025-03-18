@@ -10,7 +10,7 @@ type SocketMessage = {
 
 export default class Connection {
   static restarting: boolean = false;
-  static conn: any;
+  static conn: WebSocket;
   static lastUpdatedNode: string = "";
   static url: string;
   static maxTokens: number;
@@ -46,10 +46,12 @@ export default class Connection {
     Connection.conn.onerror = () => {
       console.error("Hit error");
       Connection.destroy()
+      Connection.reconnect(Connection.url, "")
     }
     Connection.conn.onclose = () => {
       console.warn("Hit close")
       Connection.destroy()
+      Connection.reconnect(Connection.url, "")
     };
     Connection.conn.onmessage = (msg: SocketMessage) => {
       updateDiagram(msg)
@@ -68,10 +70,9 @@ export default class Connection {
     if (!(Connection.conn instanceof WebSocket)){
       Connection.reconnect(Connection.url, data);
     }
-    if (Connection.restarting){
-      return;
+    if (Connection.conn.readyState){
+      Connection.conn.send(data);
     }
-    Connection.conn.send(data);
   }
 }
 
@@ -105,28 +106,43 @@ async function updateDiagram(msg: SocketMessage) {
     let node = req.data;
 
     const requestPayload = {
-      model: "gpt-3.5-turbo", // Replace with your model name
-      prompt: node.data.prompt,
-      max_tokens: Connection.maxTokens,
-      temperature: 0.7,
+      model: 'llama-3.2-1b-instruct', // Replace with your model name
+      messages: node.data.messages,
+      max_tokens: Connection.maxTokens > 0 ? Connection.maxTokens : undefined,
+      temperature: Connection.temperature,
     };
 
-    const response = await fetch(node.url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(requestPayload), // Convert the payload to JSON
-    });
-
-    // Parse the response
-    if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
-    const data: OAIAPI = await response.json();
-    if (!data || data.choices.length < 1) {
+    let response;
+    try {
+      console.log("Sending request to local API", requestPayload)
+      response = await fetch(node.url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestPayload), // Convert the payload to JSON
+      });
+      console.log("THE RESPONSE")
+  
+    } catch (error) {
+      console.error("We got problemm")
+      const server_broke_connection_msg = { type: 'local_conn_error', data: 'cors'} 
+      Connection.send(JSON.stringify(server_broke_connection_msg))
+      Graph.generatingContent = false
+      Graph.executionErrors = [...Graph.executionErrors, {name: "CORS", message: "Local server is not working"}]
+      dispatchEvent(new CustomEvent("execError", { detail: "cors"}))
       return;
     }
-    const llmResponse = data.choices[0].text
-    let server_back_message = {type:'local_llm', data: llmResponse}
+
+    const data: OAIAPI = await response.json();
+    if (!data || data.choices.length < 1) {
+
+      return;
+    }
+
+    const llmResponse = data.choices[0].message.content
+    const server_back_message = {type:'local_llm', data: llmResponse}
+    
     Connection.send(JSON.stringify(server_back_message));
     update_node({data: llmResponse, id: node.data.id})
   }

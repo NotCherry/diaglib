@@ -22,11 +22,11 @@ export class Graph {
   static nodes: GraphNode[] = [];
   static canvas: HTMLCanvasElement;
   static ctx: CanvasRenderingContext2D;
+  static widgetRootElementId: string;
 
   // where the mouse is with applied transformations
   static cursorPos: Point = { x: 0, y: 0 };
   static connectedIO: GraphNodeIO[] = [];
-  static zoom: number = 1.0;
   static selectedNode?: string = undefined;
   static dragStartingPosOffset: Point = { x: 0, y: 0 };
 
@@ -63,6 +63,7 @@ export class Graph {
 
   static generatingContent: boolean = false;
   static returnFunction: Function = undefined;
+  static executionErrors: Error[] = [];
 
   constructor(canvas: HTMLCanvasElement) {
     Graph.canvas = canvas;
@@ -140,6 +141,10 @@ export class Graph {
 
   static registerNode(title: string, node: any) {
     Graph.registeredNodes.push({ title, node });
+  }
+
+  static clearRegisterNodes() {
+    Graph.registeredNodes = []
   }
 
   static addNode(node: GraphNode) {

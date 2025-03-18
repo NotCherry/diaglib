@@ -21,6 +21,7 @@ export type OAIAPI = {
 export type OAIResponse = {
 	index: number,
 	text: string,
+  message: { content: string}
 	logprobs: string,
 	finish_reason: string
 }

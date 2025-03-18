@@ -4,10 +4,11 @@ import { getTransformedPoint } from "../util/utility";
 // Event handlers
 function handleWheel(event) {
   event.preventDefault();
-  const zoomFactor = event.deltaY < 0 ? 1.1 : 0.9;
+  
+  const zoomfactor = event.deltaY < 0 ? 1.1 : 0.9;
 
   Graph.ctx.translate(Graph.cursorPos.x, Graph.cursorPos.y);
-  Graph.ctx.scale(zoomFactor, zoomFactor);
+  Graph.ctx.scale(zoomfactor, zoomfactor);
   Graph.ctx.translate(-Graph.cursorPos.x, -Graph.cursorPos.y);
 
   Graph.render();
@@ -23,6 +24,9 @@ function handleMouseOut(event) {
 }
 
 function handleMouseDown(event) {
+  if (event.target != Graph.canvas) {
+    return;
+  }
   Graph.mouseBtn = event.button;
 
   if (event.button === 1) { // Middle mouse button
@@ -42,8 +46,11 @@ function handleMouseDown(event) {
 }
 
 function handleMouseUp(event) {
+  if (event.target != Graph.canvas) {
+    return;
+  }
   Graph.mouseBtn = undefined;
-
+  
   if (event.button === 1) { // Middle mouse button
     Graph.widgetMap.forEach((widget) => {Graph.htmlPointerNone(widget.element)})
     Graph.wheelPress = false;
@@ -56,6 +63,8 @@ function handleMouseUp(event) {
 }
 
 function handleMouseMove(event) {
+  
+
   if (!Graph.mouseOut) {
     Graph.mouse = {
       x: event.offsetX - Graph.dragOffset.x - Graph.widgetXOffset,

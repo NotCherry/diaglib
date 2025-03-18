@@ -1,5 +1,4 @@
 import Graph from "../Graph";
-import GraphNodeIO from "../IO";
 import GraphNode from "../Node";
 import Connection from "../util/connection";
 
@@ -50,9 +49,9 @@ export function resizeNode(node: GraphNode, width: number, height: number) {
   Graph.render();
 }
 
-export function callRun(type: string) {
+export function callRun(type: string, id: number) {
   Graph.generatingContent = true;
-  let msg = { type, data: Graph.serializeNodes() };
+  let msg = { type, data: Graph.serializeNodes(), diagram_id: id, config: JSON.stringify(Graph.saveGraph()) };
   Connection.send(JSON.stringify(msg));
 }
 
@@ -70,3 +69,12 @@ export function clearScreen() {
     widget.remove();
   })
 }
+
+export function updateTemp(val) {
+  Connection.temperature = val;
+}
+
+export function updateMaxTokens(val) {
+  Connection.maxTokens= val;
+}
+

@@ -25,6 +25,27 @@ export type KeyValue = {
   [key: string]: any;
 };
 
+function drawRoundedRectangle(ctx, x, y, width, height, radius) {
+  if (typeof radius === 'number') {
+      radius = { tl: radius, tr: radius, br: radius, bl: radius };
+  } else {
+      radius = { tl: 0, tr: 0, br: 0, bl: 0, ...radius };
+  }
+
+  ctx.beginPath();
+  ctx.moveTo(x + radius.tl, y); // Start at top-left corner
+  ctx.lineTo(x + width - radius.tr, y); // Top edge
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr); // Top-right corner
+  ctx.lineTo(x + width, y + height - radius.br); // Right edge
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height); // Bottom-right corner
+  ctx.lineTo(x + radius.bl, y + height); // Bottom edge
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl); // Bottom-left corner
+  ctx.lineTo(x, y + radius.tl); // Left edge
+  ctx.quadraticCurveTo(x, y, x + radius.tl, y); // Top-left corner
+  ctx.closePath();
+  ctx.fill();   // Fill
+}
+
 class GraphNode {
   id: string;
   title: string;
@@ -41,7 +62,7 @@ class GraphNode {
   // variables for calculating size of node
   ioSpacingY: number = 30;
   ioXSpacing: number = 5;
-  elementsYSpacing: number = 45; // between io, widgest, etc
+  elementsYSpacing: number = 50 ; // between io, widgest, etc
   widgetsYSpacing: number = 35;
   elementsXSpacing: number = 15;
   totalWidgetsHeight: number = 0;
@@ -56,6 +77,7 @@ class GraphNode {
     this.type = args.type || "default";
     this.size = args.size || [500, 300];
     this.pos = args.pos || { x: Graph.cursorPos.x, y: Graph.cursorPos.y };
+    this.color = "#1D232A"
     if (args.options) {
       this.color = "black";
     }
@@ -129,7 +151,8 @@ class GraphNode {
   drawNode(ctx: CanvasRenderingContext2D) {
     this.updateNodeSize();
     ctx.fillStyle = this.color || "#222";
-    ctx.fillRect(this.pos.x, this.pos.y, this.size[0], this.size[1]);
+    // ctx.fillRect(this.pos.x, this.pos.y, this.size[0], this.size[1]);
+    drawRoundedRectangle(ctx, this.pos.x, this.pos.y, this.size[0], this.size[1], 20)
 
     ctx.shadowBlur = 10;
     ctx.shadowBlur = 10;
@@ -137,12 +160,12 @@ class GraphNode {
     ctx.shadowOffsetX = 5;
     ctx.shadowOffsetY = 5;
 
-    ctx.fillStyle = this.color || "#444";
-    ctx.fillRect(this.pos.x, this.pos.y + 30, this.size[0], 1);
+    ctx.fillStyle = "#444";
+    ctx.fillRect(this.pos.x, this.pos.y + 33, this.size[0], 2);
 
     ctx.font = "20px monospace";
     ctx.fillStyle = "white";
-    ctx.fillText(this.title, this.pos.x + 10, this.pos.y + 20);
+    ctx.fillText(this.title, this.pos.x + 20, this.pos.y + 25);
   }
 
   reset() {
@@ -168,12 +191,23 @@ class GraphNode {
   updateNodeSize() {
     this.updateIOSize();
     this.updateWidgetsSize();
-    let size =
+    let height =
       this.totalIOHeight +
       this.totalWidgetsHeight +
       this.elementsYSpacing -
       (this.io.length > 0 ? this.io[0].radius : 0);
-    this.size[1] = this.size[1] < size ? size : this.size[1];
+    // this.size[1] = this.size[1] < size ? size : this.size[1];
+    this.size[1] = height
+
+    if (this.widgets.length < 1) {
+      return
+    }
+
+    let width = this.size[0] - 20 
+    this.widgets.forEach(element => {
+      width = element.width > width ? element.width : width
+    });
+    this.size[0] = width + 20
   }
 
   updateIOSize() {
@@ -300,12 +334,12 @@ class GraphNode {
   updateWidgetsPos() {
     let index = 1;
 
-    let x_offset = 0;
+    let x_offset = 10;
     let y_offset = 0;
 
     this.widgets.forEach((widget) => {
       widget.pos = {
-        x: this.pos.x + x_offset + 10,
+        x: this.pos.x + x_offset,
         y:
           this.pos.y +
           y_offset +
