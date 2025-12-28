@@ -8,7 +8,7 @@ export interface IWidget {
   height?: number;
   type?: string;
   id?: string;
-  style?: string; 
+  style?: string;
   owner: string;
   // graf: Graph;
 }
@@ -18,10 +18,10 @@ export default abstract class Widget {
   pos: Point;
   width: number;
   height: number;
-  fontSize:number = 18;
+  fontSize: number = 18;
   type: string;
   owner: string;
-  element: HTMLTextAreaElement;
+  element: HTMLElement;
   // graf: Graph;
   constructor(args: IWidget) {
     this.id = args.id || uuidv4();
@@ -38,8 +38,10 @@ export default abstract class Widget {
   abstract update(): void;
   abstract render(): void;
   abstract setup();
-  abstract validate(): boolean;
   abstract remove();
+  validate(): boolean {
+    return true;
+  }
   save() {
     return { type: this.type, id: this.id, owner: this.owner };
   }
@@ -50,7 +52,7 @@ export function AdjustElementPos(
   pos: Point,
   width: number,
   height: number,
-  fontSize:number
+  fontSize: number,
 ): void {
   element.style.width = `${width * Graph.scale}px`;
   element.style.height = `${height * Graph.scale}px`;
@@ -61,5 +63,5 @@ export function AdjustElementPos(
   element.style.top = `${
     pos.y * Graph.scale + Graph.transforms.f + Graph.widgetYOffset
   }px`;
-  element.style.fontSize = `${fontSize * Graph.scale}px`
+  element.style.fontSize = `${fontSize * Graph.scale}px`;
 }

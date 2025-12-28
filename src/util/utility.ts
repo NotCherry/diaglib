@@ -21,7 +21,7 @@ function formatStringFromInputs(node, format) {
 export function drawCircle(
   ctx: CanvasRenderingContext2D,
   pos: Point,
-  radius: number
+  radius: number,
 ) {
   ctx.beginPath();
   ctx.arc(pos.x, pos.y, radius, 0, 2 * Math.PI);
@@ -31,7 +31,7 @@ export function drawCircle(
 export function drawIOLineTo(
   ctx: CanvasRenderingContext2D,
   LineStart: Point,
-  LineEnd: Point
+  LineEnd: Point,
 ) {
   let x = 50;
   let sideOffset = LineEnd.x > LineStart.x ? x : -x;
@@ -43,7 +43,7 @@ export function drawIOLineTo(
     LineEnd.x - sideOffset,
     LineEnd.y,
     LineEnd.x,
-    LineEnd.y
+    LineEnd.y,
   );
   ctx.lineWidth = 3;
   ctx.stroke();
@@ -67,7 +67,7 @@ export function ioDrag(io: GraphNodeIO) {
       Graph.cursorPos.y,
       io.pos.x,
       io.pos.y,
-      io.radius
+      io.radius,
     )
   ) {
     return io.id;

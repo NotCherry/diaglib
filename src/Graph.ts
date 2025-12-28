@@ -92,12 +92,13 @@ export class Graph {
         widget.element.style.display =
           widget.element.style.display == "none" ? "block" : "none";
       }
-      this.htmlPointerNone(widget.element)
+      this.htmlPointerNone(widget.element);
     });
   }
 
   static htmlPointerNone(element: HTMLElement) {
-    element.style.pointerEvents = element.style.pointerEvents == "none" ? "auto" : "none";
+    element.style.pointerEvents =
+      element.style.pointerEvents == "none" ? "auto" : "none";
   }
 
   static render() {
@@ -135,7 +136,7 @@ export class Graph {
     Graph.nodes.forEach((node) => {
       node.render(Graph.ctx);
     });
-    
+
     Graph.connectedIO = [];
   }
 
@@ -144,7 +145,7 @@ export class Graph {
   }
 
   static clearRegisterNodes() {
-    Graph.registeredNodes = []
+    Graph.registeredNodes = [];
   }
 
   static addNode(node: GraphNode) {
@@ -188,7 +189,7 @@ export class Graph {
 
     return diagram;
   }
-  
+
   static loadGraph(config: string) {
     Graph.reset();
     drag_setup();
@@ -200,12 +201,12 @@ export class Graph {
     }
 
     let spec = JSON.parse(config);
-    
+
     Graph.id = spec.id;
     Graph.graph_name = spec.graph_name;
-  
+
     Graph.drawIO = false;
-  
+
     spec.nodes.forEach((node: any) => {
       let { id, title, type, size, pos, data } = node;
       let n = new GraphNode({
@@ -228,7 +229,7 @@ export class Graph {
         };
         n.addIO(args);
       });
-  
+
       node.widgets.map((widget: any) => {
         let args = {
           id: widget.id,
@@ -239,16 +240,16 @@ export class Graph {
       });
       Graph.addNode(n);
     });
-  
+
     Graph.drawIO = true;
     Graph.render();
   }
 
   static setReturnFunc(f: Function) {
-    Graph.returnFunction = f
+    Graph.returnFunction = f;
   }
   static returnLastContent(text: string) {
-    Graph.returnFunction(text)
+    Graph.returnFunction(text);
   }
 }
 

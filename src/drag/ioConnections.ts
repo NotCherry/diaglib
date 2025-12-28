@@ -19,7 +19,9 @@ function handleMouseDown(event) {
         if (srcIO) {
           Graph.LineStart = srcIO.pos;
           // Remove the connection from source IO to the selected IO
-          srcIO.pointingTo = srcIO.pointingTo?.filter(io => io !== Graph.selectedIO);
+          srcIO.pointingTo = srcIO.pointingTo?.filter(
+            (io) => io !== Graph.selectedIO,
+          );
 
           Graph.selectedNode = srcIO.owner;
           selectedIO.pointedBy = undefined;

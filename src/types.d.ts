@@ -15,13 +15,13 @@ export enum NodeType {
 }
 
 export type OAIAPI = {
-  choices: OAIResponse[] 
-}
+  choices: OAIResponse[];
+};
 
 export type OAIResponse = {
-	index: number,
-	text: string,
-  message: { content: string}
-	logprobs: string,
-	finish_reason: string
-}
+  index: number;
+  text: string;
+  message: { content: string };
+  logprobs: string;
+  finish_reason: string;
+};

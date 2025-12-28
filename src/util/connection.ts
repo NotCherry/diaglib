@@ -7,7 +7,6 @@ type SocketMessage = {
   data: any;
 };
 
-
 export default class Connection {
   static restarting: boolean = false;
   static conn: WebSocket;
@@ -21,19 +20,20 @@ export default class Connection {
     Connection.temperature = temperature;
   }
   static async reconnect(apiURL, data) {
-      if (Connection.restarting) {
-        console.warn("Do not abuse");
-        return;
-      }
-      Connection.restarting = true;
-      console.log("Reconnecting...");
-      await Connection.setup_conn(apiURL)
-      if (Connection.conn instanceof WebSocket) {
-        setTimeout(()=>{Connection.send(data)}, 1000)
-        return;
-      }
-      Connection.reconnect(apiURL, data);
-  
+    if (Connection.restarting) {
+      console.warn("Do not abuse");
+      return;
+    }
+    Connection.restarting = true;
+    console.log("Reconnecting...");
+    await Connection.setup_conn(apiURL);
+    if (Connection.conn instanceof WebSocket) {
+      setTimeout(() => {
+        Connection.send(data);
+      }, 1000);
+      return;
+    }
+    Connection.reconnect(apiURL, data);
   }
 
   static async setup_conn(apiURL: string) {
@@ -45,16 +45,16 @@ export default class Connection {
     };
     Connection.conn.onerror = () => {
       console.error("Hit error");
-      Connection.destroy()
-      Connection.reconnect(Connection.url, "")
-    }
+      Connection.destroy();
+      Connection.reconnect(Connection.url, "");
+    };
     Connection.conn.onclose = () => {
-      console.warn("Hit close")
-      Connection.destroy()
-      Connection.reconnect(Connection.url, "")
+      console.warn("Hit close");
+      Connection.destroy();
+      Connection.reconnect(Connection.url, "");
     };
     Connection.conn.onmessage = (msg: SocketMessage) => {
-      updateDiagram(msg)
+      updateDiagram(msg);
     };
   }
 
@@ -67,10 +67,10 @@ export default class Connection {
   }
 
   static send(data: any) {
-    if (!(Connection.conn instanceof WebSocket)){
+    if (!(Connection.conn instanceof WebSocket)) {
       Connection.reconnect(Connection.url, data);
     }
-    if (Connection.conn.readyState){
+    if (Connection.conn.readyState) {
       Connection.conn.send(data);
     }
   }
@@ -86,7 +86,7 @@ async function update_node(node) {
 
 async function updateDiagram(msg: SocketMessage) {
   const req: SocketMessage = JSON.parse(msg.data);
-  console.warn(req.type)
+  console.warn(req.type);
   if (req.type === "update_node") {
     let node = req.data;
     if (Connection.lastUpdatedNode !== node.id) {
@@ -98,7 +98,7 @@ async function updateDiagram(msg: SocketMessage) {
     }
 
     Connection.lastUpdatedNode = node.id;
-    
+
     update_node(node);
     Graph.render();
   }
@@ -106,7 +106,7 @@ async function updateDiagram(msg: SocketMessage) {
     let node = req.data;
 
     const requestPayload = {
-      model: 'llama-3.2-1b-instruct', // Replace with your model name
+      model: "llama-3.2-1b-instruct", // Replace with your model name
       messages: node.data.messages,
       max_tokens: Connection.maxTokens > 0 ? Connection.maxTokens : undefined,
       temperature: Connection.temperature,
@@ -114,7 +114,7 @@ async function updateDiagram(msg: SocketMessage) {
 
     let response;
     try {
-      console.log("Sending request to local API", requestPayload)
+      console.log("Sending request to local API", requestPayload);
       response = await fetch(node.url, {
         method: "POST",
         headers: {
@@ -122,34 +122,38 @@ async function updateDiagram(msg: SocketMessage) {
         },
         body: JSON.stringify(requestPayload), // Convert the payload to JSON
       });
-      console.log("THE RESPONSE")
-  
+      console.log("THE RESPONSE");
     } catch (error) {
-      console.error("We got problemm")
-      const server_broke_connection_msg = { type: 'local_conn_error', data: 'cors'} 
-      Connection.send(JSON.stringify(server_broke_connection_msg))
-      Graph.generatingContent = false
-      Graph.executionErrors = [...Graph.executionErrors, {name: "CORS", message: "Local server is not working"}]
-      dispatchEvent(new CustomEvent("execError", { detail: "cors"}))
+      console.error("We got problemm");
+      const server_broke_connection_msg = {
+        type: "local_conn_error",
+        data: "cors",
+      };
+      Connection.send(JSON.stringify(server_broke_connection_msg));
+      Graph.generatingContent = false;
+      Graph.executionErrors = [
+        ...Graph.executionErrors,
+        { name: "CORS", message: "Local server is not working" },
+      ];
+      dispatchEvent(new CustomEvent("execError", { detail: "cors" }));
       return;
     }
 
     const data: OAIAPI = await response.json();
     if (!data || data.choices.length < 1) {
-
       return;
     }
 
-    const llmResponse = data.choices[0].message.content
-    const server_back_message = {type:'local_llm', data: llmResponse}
-    
+    const llmResponse = data.choices[0].message.content;
+    const server_back_message = { type: "local_llm", data: llmResponse };
+
     Connection.send(JSON.stringify(server_back_message));
-    update_node({data: llmResponse, id: node.data.id})
+    update_node({ data: llmResponse, id: node.data.id });
   }
   if (req.type === "run_compleated") {
     Graph.generatingContent = false;
-    console.log(req.type, req.data)
-    Graph.returnLastContent(req.data.text)
+    console.log(req.type, req.data);
+    Graph.returnLastContent(req.data.text);
   }
   Connection.lastUpdatedNode = "";
 }

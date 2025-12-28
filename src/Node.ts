@@ -26,10 +26,10 @@ export type KeyValue = {
 };
 
 function drawRoundedRectangle(ctx, x, y, width, height, radius) {
-  if (typeof radius === 'number') {
-      radius = { tl: radius, tr: radius, br: radius, bl: radius };
+  if (typeof radius === "number") {
+    radius = { tl: radius, tr: radius, br: radius, bl: radius };
   } else {
-      radius = { tl: 0, tr: 0, br: 0, bl: 0, ...radius };
+    radius = { tl: 0, tr: 0, br: 0, bl: 0, ...radius };
   }
 
   ctx.beginPath();
@@ -37,13 +37,18 @@ function drawRoundedRectangle(ctx, x, y, width, height, radius) {
   ctx.lineTo(x + width - radius.tr, y); // Top edge
   ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr); // Top-right corner
   ctx.lineTo(x + width, y + height - radius.br); // Right edge
-  ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height); // Bottom-right corner
+  ctx.quadraticCurveTo(
+    x + width,
+    y + height,
+    x + width - radius.br,
+    y + height,
+  ); // Bottom-right corner
   ctx.lineTo(x + radius.bl, y + height); // Bottom edge
   ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl); // Bottom-left corner
   ctx.lineTo(x, y + radius.tl); // Left edge
   ctx.quadraticCurveTo(x, y, x + radius.tl, y); // Top-left corner
   ctx.closePath();
-  ctx.fill();   // Fill
+  ctx.fill(); // Fill
 }
 
 class GraphNode {
@@ -62,7 +67,7 @@ class GraphNode {
   // variables for calculating size of node
   ioSpacingY: number = 30;
   ioXSpacing: number = 5;
-  elementsYSpacing: number = 50 ; // between io, widgest, etc
+  elementsYSpacing: number = 50; // between io, widgest, etc
   widgetsYSpacing: number = 35;
   elementsXSpacing: number = 15;
   totalWidgetsHeight: number = 0;
@@ -77,7 +82,7 @@ class GraphNode {
     this.type = args.type || "default";
     this.size = args.size || [500, 300];
     this.pos = args.pos || { x: Graph.cursorPos.x, y: Graph.cursorPos.y };
-    this.color = "#1D232A"
+    this.color = "#1D232A";
     if (args.options) {
       this.color = "black";
     }
@@ -152,7 +157,14 @@ class GraphNode {
     this.updateNodeSize();
     ctx.fillStyle = this.color || "#222";
     // ctx.fillRect(this.pos.x, this.pos.y, this.size[0], this.size[1]);
-    drawRoundedRectangle(ctx, this.pos.x, this.pos.y, this.size[0], this.size[1], 20)
+    drawRoundedRectangle(
+      ctx,
+      this.pos.x,
+      this.pos.y,
+      this.size[0],
+      this.size[1],
+      20,
+    );
 
     ctx.shadowBlur = 10;
     ctx.shadowBlur = 10;
@@ -173,17 +185,22 @@ class GraphNode {
   }
 
   updateData(data: string) {
-    this.data['response'] = data;
-    
+    this.data["response"] = data;
+
     if (!this.hasResponseWidget) {
       this.hasResponseWidget = true;
-      this.addWidget(new ResponseTextArea({type:"respones", owner: this.id, height: 350}as IWidget));
+      this.addWidget(
+        new ResponseTextArea({
+          type: "respones",
+          owner: this.id,
+          height: 350,
+        } as IWidget),
+      );
     }
 
     for (let i = 0; i < this.widgets.length; i++) {
       if (this.widgets[i] instanceof ResponseTextArea) {
         this.widgets[i].update();
-        
       }
     }
   }
@@ -197,17 +214,17 @@ class GraphNode {
       this.elementsYSpacing -
       (this.io.length > 0 ? this.io[0].radius : 0);
     // this.size[1] = this.size[1] < size ? size : this.size[1];
-    this.size[1] = height
+    this.size[1] = height;
 
     if (this.widgets.length < 1) {
-      return
+      return;
     }
 
-    let width = this.size[0] - 20 
-    this.widgets.forEach(element => {
-      width = element.width > width ? element.width : width
+    let width = this.size[0] - 20;
+    this.widgets.forEach((element) => {
+      width = element.width > width ? element.width : width;
     });
-    this.size[0] = width + 20
+    this.size[0] = width + 20;
   }
 
   updateIOSize() {
@@ -218,7 +235,7 @@ class GraphNode {
   updateWidgetsSize() {
     this.totalWidgetsHeight = this.widgets.reduce(
       (acc, widget) => acc + widget.height,
-      0 + this.elementsYSpacing * this.widgets.length
+      0 + this.elementsYSpacing * this.widgets.length,
     );
   }
 
@@ -293,13 +310,13 @@ class GraphNode {
         ctx.fillText(
           io.name,
           io.pos.x + this.elementsXSpacing,
-          io.pos.y + io.radius / 1.2
+          io.pos.y + io.radius / 1.2,
         );
       } else {
         ctx.fillText(
           io.name,
           io.pos.x - ctx.measureText(io.name).width - this.elementsXSpacing,
-          io.pos.y + io.radius / 2
+          io.pos.y + io.radius / 2,
         );
       }
     });
@@ -345,7 +362,7 @@ class GraphNode {
           y_offset +
           this.totalIOHeight +
           (index == 1 ? this.elementsYSpacing : this.widgetsYSpacing) * index +
-          (index > 1 ? this.widgets[index-2].height : 0),
+          (index > 1 ? this.widgets[index - 2].height : 0),
       };
       if (widget.width != this.size[0] - 20) {
         widget.width = this.size[0] - 20;

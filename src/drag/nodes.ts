@@ -1,7 +1,7 @@
 import Graph from "../Graph";
 import { setSelectedElements } from "../util/utility";
 
-function onMouseDown (event) {
+function onMouseDown(event) {
   if (
     Graph.wheelPress != true &&
     (Graph.selectedNode == undefined || Graph.selectedIO == undefined) &&
@@ -15,10 +15,9 @@ function onMouseDown (event) {
       y: Graph.cursorPos.y - node.pos.y,
     };
   }
-
 }
 
-function onMouseMove (event) {
+function onMouseMove(event) {
   if (
     Graph.selectedNode != undefined &&
     Graph.selectedIO == undefined &&
@@ -33,15 +32,14 @@ function onMouseMove (event) {
 
     Graph.render();
   }
-};
-
+}
 
 export function removeDragEvents() {
   Graph.canvas.removeEventListener("mousedown", onMouseDown);
-  Graph.canvas.removeEventListener("mousemove", onMouseMove)
+  Graph.canvas.removeEventListener("mousemove", onMouseMove);
 }
 
-export function dragNodes () {
+export function dragNodes() {
   Graph.canvas.addEventListener("mousedown", onMouseDown);
-  Graph.canvas.addEventListener("mousemove", onMouseMove)
-};
+  Graph.canvas.addEventListener("mousemove", onMouseMove);
+}

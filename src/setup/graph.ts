@@ -14,7 +14,7 @@ export function resizeCanvas() {
   Graph.widgetYOffset = Graph.viewportHeight - Graph.canvas.height;
 }
 
-export function resizeEvent (event) {
+export function resizeEvent(event) {
   resizeCanvas();
   Graph.render();
 }
